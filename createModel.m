@@ -65,7 +65,14 @@ fclose(f)
 %  save(strcat('res',int2str(partition)), 'X', 'y')
 
 % clearvars -except X y
+% numWords = 10000
+    % trainingX = Xtot(1:numWords, length(Xtot)/10:end) last 90% of data
+    % validationX = Xtot(1:numWords, 1:length(Xtot)/10) first 10% of data
+    % trainingY = ytot(length(X)/10:end)
+    % validationY = ytot(1:length(X)/10)
+    % X = trainingX
+    % y = trainingY
+% B = (X * X' + eye(length(X(:,1)))\(X*y)
+% scores = validationX'*B
+       % [x,y,AUC] = perfcurve((validationY > 3), (scores > 3),1)
 
-% B = (X * X' + eye(length(X)))\(X*y)
-% score = X'*B
-% find((score > 3) == (y > 3))
