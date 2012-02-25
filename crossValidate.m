@@ -1,9 +1,10 @@
+modelFileName = 'model'; % should have vars Xtot and ytot
+load(modelFileName);
 numWords = 10000;
 numReviews = length(X(1,:));
 rng(13);
 c = 1 % regularization constant
-X = X(:,randperm(numReviews)); % shuffle reviews
-
+Xtot = Xtot(:,randperm(numReviews)); % shuffle reviews
 for i = 1:10
   % separate data into training and validation
   validationStart = numReviews*(i-1)/10 + 1;
@@ -14,8 +15,9 @@ for i = 1:10
   validationY = ytot(validationStart:validationEnd);
   
   % get B from regression
-  r = speye(numReviews)*c;
+  r = speye(numWords)*c;
   B = (trainingX * trainingX' + r)\(trainingX*trainingY);
   scores = validationX'*B;
   [x,y,AUC] = perfcurve((validationY > 3), (scores > 3),1);
+  display AUC
 end
