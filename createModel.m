@@ -18,8 +18,6 @@ partition = 1;
 Xtot = [];
 ytot = [];
 while ~feof(f)
-%for j = 1:1
-  
   buf = fread(f, numTokens*3, 'int32');
   buf = buf(3:3:end);
   reviewTextEnds = find(buf == endReviewTextIndex);
@@ -53,6 +51,9 @@ while ~feof(f)
     end
   end
   toc;
+  if length(uniques) == 0 % Hit EOF
+    break
+  end
   display('Num uniques: ')
   display(length(uniques))
   Xtot = [Xtot, X(:,uniques)];
@@ -61,18 +62,3 @@ while ~feof(f)
 end
 
 fclose(f)
-
-%  save(strcat('res',int2str(partition)), 'X', 'y')
-
-% clearvars -except X y
-% numWords = 10000
-    % trainingX = Xtot(1:numWords, length(Xtot)/10:end) last 90% of data
-    % validationX = Xtot(1:numWords, 1:length(Xtot)/10) first 10% of data
-    % trainingY = ytot(length(X)/10:end)
-    % validationY = ytot(1:length(X)/10)
-    % X = trainingX
-    % y = trainingY
-% B = (X * X' + eye(length(X(:,1)))\(X*y)
-% scores = validationX'*B
-       % [x,y,AUC] = perfcurve((validationY > 3), (scores > 3),1)
-
