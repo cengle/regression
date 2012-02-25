@@ -60,5 +60,5 @@ while ~feof(f)
   ytot = [ytot; y(uniques)];
   partition = partition + 1
 end
-
+save('model','Xtot','ytot');
 fclose(f)
