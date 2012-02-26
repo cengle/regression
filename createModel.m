@@ -1,5 +1,9 @@
 
 load('smap.mat', 'smap');
+load('smapStemmedUnique.mat', 'smapUnique', 'uniqToSmap', 'smapToUniq', 'smapStemmed');
+load('stopwords.mat', 'swords', 'swordIndexes');
+swordIndexes = cell2mat(swordIndexes);
+
 dictLen = length(smap);
 numTokens = 20000000; % each item is 4 bytes. read multiple of 3 each time since we have 3 tokens
 X = []; % NxM matrix. N is num terms, M is num docs.
@@ -18,6 +22,7 @@ partition = 1;
 Xtot = [];
 ytot = [];
 while ~feof(f)
+%for i=1:1 
   buf = fread(f, numTokens*3, 'int32');
   buf = buf(3:3:end);
   reviewTextEnds = find(buf == endReviewTextIndex);
@@ -42,6 +47,16 @@ while ~feof(f)
       seen(key) = true;
       uniques = [uniques; i];
     end
+    
+    % omit stopwords
+    text = setdiff(text, swordIndexes);
+
+    % translate to stemmed indexes
+    revLen = length(text);
+    for k=1:revLen
+        text(k) = smapToUniq(text(k));
+    end
+    
     review = sparse(text, 1, 1, dictLen, 1);
     X(:,i) = [1; review];
     if mod(i, 10000) == 0
