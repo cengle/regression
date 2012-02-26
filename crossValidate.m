@@ -9,10 +9,10 @@ rng(13);
 ri = randperm(numReviews);
 Xtot = Xtot(:,ri); % shuffle reviews
 ytot = ytot(ri); % shuffle reviews
-aucs = []
-lifts = []
-times = []
-flops = []
+aucs = [];
+lifts = [];
+times = [];
+flops = [];
 for i = 1:iterations
   % separate data into training and validation
   validationStart = numReviews*(i-1)/10 + 1;
@@ -29,12 +29,12 @@ for i = 1:iterations
   times(i) = toc
   
   % calculate flops
-  nza = double(trainingX ~= 0);
-  nzb = double(trainingX' ~= 0);
-  ftmp = nza*nzb;
-  ftmp = 2*ftmp - (ftmp ~= 0);
-  f = sum(sum(ftmp));
-  flops(i) = f;
+  % nza = double(trainingX ~= 0);
+  % nzb = double(trainingX' ~= 0);
+  % ftmp = nza*nzb;
+  % ftmp = 2*ftmp - (ftmp ~= 0);
+  % f = sum(sum(ftmp));
+  % flops(i) = f;
 
   scores = validationX'*B;
   [x,y,t,AUC] = perfcurve((validationY > 3),scores,true);
@@ -43,4 +43,4 @@ for i = 1:iterations
   lifts = [lifts, y(index)/.01];
   display(i)
 end
-perf = flops ./ times;
+% perf = flops ./ times;
