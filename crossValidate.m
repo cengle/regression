@@ -1,24 +1,30 @@
-%modelFileName = 'model'; % should have vars Xtot and ytot
-modelFileName = 'modelNoStopsStemmed';
+modelFileName = 'model'; % should have vars Xtot and ytot
+%modelFileName = 'modelNoStops';
+%modelFileName = 'modelNoStopsStemmed';
 load(modelFileName);
+load('stopwords');
+%load('smapStemmedUnique');
+load('smap', 'smap');
 numWords = 10000;
 numReviews = length(Xtot(1,:));
 
 % Get total frequency for each unique stem
-uniqWordTotals = sum(Xtot, 2);
-[ignore, uniquesByFreq] = sort(uniqWordTotals, 'descend');
+%uniqWordTotals = sum(Xtot(2:end,:), 2);
+%uniqWordTotals = uniqWordTotals(1:length(uniqToSmap), 1);
+%[ignore, uniquesByFreq] = sort(uniqWordTotals, 'descend');
 
-stopwordsUniq = unique(smapToUniq(swordIndexes), 'first');
-stopwordsLen = length(stopwordsUniq);
+%stopwordsUniq = unique(smapToUniq(stopIndexes), 'first');
+%stopwordsLen = length(stopwordsUniq);
 
 % Omit stemmed stopwords
-[ignore, ix] = setdiff(uniquesByFreq, stopwordsUniq);
-uniquesNoStops = uniquesByFreq(sort(ix)); % keep freq order
+%[ignore, ix] = setdiff(uniquesByFreq, stopwordsUniq);
+%uniquesNoStops = uniquesByFreq(sort(ix)); % keep freq order
 
 % top stems by frequency
-topWords = uniquesNoStops(1:numWords);
+%topWords = uniquesNoStops(1:numWords) + 1;
+topWords = 1:numWords;
 
-iterations = 1
+iterations = 1;
 lambda = 1; % regularization constant
 rng(13);
 ri = randperm(numReviews);
@@ -28,6 +34,7 @@ aucs = [];
 lifts = [];
 times = [];
 flops = [];
+
 
 for i = 1:iterations
   % separate data into training and validation
@@ -60,3 +67,19 @@ for i = 1:iterations
   display(i)
 end
 % perf = flops ./ times;
+
+%stemmed
+% worst words:
+%[a, ix] = sort(B);
+%smap(uniqToSmap(topWords(ix(1:20))-1)) %  by most frequent unstemmed version of stem
+% smapUnique(topWords(ix(1:15))-1)' % stem
+% best words:
+% smap(uniqToSmap(topWords(ix(numWords-15:end))-1))
+% smapUnique(topWords(ix(numWords-15:end))-1)'
+
+%unstemmed
+% worst words:
+% [a, ix] = sort(B(2:end))
+%smap(ix(1:20))
+% best words:
+% smap(ix(numWords-15:end))
