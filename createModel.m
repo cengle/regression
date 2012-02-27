@@ -1,14 +1,13 @@
-
 load('smap.mat', 'smap');
-load('smapStemmedUnique.mat', 'smapUnique', 'uniqToSmap', 'smapToUniq', 'smapStemmed');
-load('stopwords.mat', 'swords', 'swordIndexes');
-swordIndexes = cell2mat(swordIndexes);
+% smapStemmer
+load('smapStemmedUnique.mat', 'smapUnique', 'uniqToSmap', 'smapToUniq', 'smapStemmed'); 
+% stopwords
+load('stopwords.mat', 'stops', 'stopIndexes'); 
 
 dictLen = length(smap);
 numTokens = 20000000; % each item is 4 bytes. read multiple of 3 each time since we have 3 tokens
 X = []; % NxM matrix. N is num terms, M is num docs.
 y = []; % Nx1 matrix. Contains ratings
-
 
 ratingIndex = strmatch('<rating>', smap, 'exact');
 reviewTextIndex = strmatch('<review_text>', smap, 'exact');
@@ -39,6 +38,7 @@ while ~feof(f)
   tic;
   X = sparse(1 + dictLen, numReviews);
   for i = 1:numReviews
+  %for i = 1:1
     text = buf(reviewTextStarts(i) + 1:reviewTextEnds(i) - 1);
     key = mat2str(text(1:min(10,end)));
     if isKey(seen, key)
@@ -49,7 +49,7 @@ while ~feof(f)
     end
     
     % omit stopwords
-    text = setdiff(text, swordIndexes);
+    text = setdiff(text, stopIndexes);
 
     % translate to stemmed indexes
     revLen = length(text);
@@ -75,5 +75,16 @@ while ~feof(f)
   ytot = [ytot; y(uniques)];
   partition = partition + 1
 end
-save('model','Xtot','ytot');
+%save('model','Xtot','ytot');
+%save('modelNoStops','Xtot','ytot');
+save('modelNoStopsStemmed', 'Xtot', 'ytot');
 fclose(f)
+
+% Basically the problem here is that, for example, I would expect the words
+% for the first review to be substantially similar after stemming. So if
+% you run createModel without stemming (comment out 53-56)
+% r1NoStem = smap(find(Xtot(:,1)))
+% Then, if you run createModel with stemming:
+% r1Stem = smap(uniqToSmap(find(Xtot(:,1))))
+% The contents of these two reviews are completely different
+

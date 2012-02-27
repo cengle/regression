@@ -1,13 +1,22 @@
-modelFileName = 'model'; % should have vars Xtot and ytot
+%modelFileName = 'model'; % should have vars Xtot and ytot
+modelFileName = 'modelNoStopsStemmed';
 load(modelFileName);
 numWords = 10000;
 numReviews = length(Xtot(1,:));
-%topWords = smapToUniq(1:10000)';
 
-[~, idxs, ~] = unique(smapToUniq, 'first');
-newUniqueMap = smapToUniq(sort(idxs));
-topWords = newUniqueMap(1:numWords)';
-%topWords = 1:10000;
+% Get total frequency for each unique stem
+uniqWordTotals = sum(Xtot, 2);
+[ignore, uniquesByFreq] = sort(uniqWordTotals, 'descend');
+
+stopwordsUniq = unique(smapToUniq(swordIndexes), 'first');
+stopwordsLen = length(stopwordsUniq);
+
+% Omit stemmed stopwords
+[ignore, ix] = setdiff(uniquesByFreq, stopwordsUniq);
+uniquesNoStops = uniquesByFreq(sort(ix)); % keep freq order
+
+% top stems by frequency
+topWords = uniquesNoStops(1:numWords);
 
 iterations = 1
 lambda = 1; % regularization constant
