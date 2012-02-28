@@ -28,7 +28,7 @@ Sentiment analysis aims to classify people's sentiments towards a particular sub
 \section{Linear Regression}
 Linear regression is a method to model the relationship between an output variable, $y$, and explanatory variables, $X$. The output variable is a linear sum of the explanatory variables multiplied by their corresponding coeffecients, represented by $\beta$. In our case, $y$ represents a review's ranking from one to five, while $X$ is the bag-of-words representation of the review text. This implies that $\beta$ represents the weight of a word's correlation to a higher review. This gives us the simple regression formula: $$y=X\beta$$
 
-In this paper, we perform ordinary least squares regression. By minimizing the sum of squared residuals, we can solve for the unkown parameter vector $\beta$ using a closed form solution. $$\beta=(X'X)^{-1}X'y$$ In order to ensure that the matrix $X'X$ is invertible, we perform ridge regression. In ridge regression, we add the identity matrix, $I$, scaled by a factor, $\lambda$, to produce the following equation. $$\beta=(X'X+\lambda I)^{-1}X'y$$ We calculate this $\beta$ for a training set of review text along with their corresponding ratings which range from 1 to 5. We then evaluate our model $\beta$ on the withheld reviews in order to perform a 10 fold cross validation.
+In this paper, we perform ordinary least squares regression. By minimizing the sum of squared residuals, we can solve for the unkown parameter vector $\beta$ using a closed form solution. $$\beta=(X'X)^{-1}X'y$$ In order to ensure that the matrix $X'X$ is invertible, we perform ridge regression. In ridge regression, we add the identity matrix, $I$, scaled by a factor, $\lambda$, to produce the following equation. $$\beta=(X'X+\lambda I)^{-1}X'y$$ We calculate this $\beta$ for a training set of review text along with their corresponding ratings which range from 1 to 5. We then evaluate our model $\beta$ on the withheld reviews in order to perform a 10-fold cross-validation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,20 +39,19 @@ All of our code was implemented in MATLAB because of its ease-of-use and optimiz
 
 % Talk about stemming and stop-words
 
-The actual matrix multiplications were done using the sparse $X$ matrix along with our $y$ vector and the ridge parameter. The multiplication $X'X$ takes up too much memory if we use the entire dictionary, so we chose to limit the dictionary size. We found that a dictionary of the 10,000 most frequent words gave sufficient features while also being computable using MATLAB's built-in sparse matrix multiplications.
+The actual matrix multiplications were done using the sparse $X$ matrix along with our $y$ vector and the ridge parameter. The multiplication $X'X$ takes up too much memory if we use the entire dictionary, so we chose to limit the dictionary size. We found that a dictionary of the 10,000 most frequent words gave sufficient features while also being computable using MATLAB's built-in sparse matrix multiplications. We also tried using a dictionary of 15,000 words, but only had a marginal improvement along with much slower execution. Using our 10,000 word dictionary, we calculated the performance of our matrix multiply to be 0.123 Gflops/s by dividing the number of non-zero elements in our matrices by the time to compute the multiplication.
 
 \section{Design Decisions}
 
-\begin{figure}[t]
+\subsection{Tuning the Lambda parameter}
+Since we used ridge regression, we had the ability to tune the $\lambda$ parameter in order to get the best performance. As shown in figure \ref{fig:lambda}, we observed an AUC improvement of about .5\% between the default value of 1 and a tuned parameter of 1500. This is a fairly major difference since the AUC is at 93\% using the default value. Additionally, we also noticed a major difference in the top words when using better $\lambda$ values. Using the default value of 1, our top words included obscure words including ``\_c'', ``\_j'', ``donovan'', and ``matlock.'' When we used the tuned $\lambda$ value of 1500, the words were much more representative, as shown in table \ref{tab:words}.
+
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=\linewidth]{files/lambda.pdf}
 	\caption{AUC based on varying lambda values for Ridge Regression. Dictionary is pruned to 15,000 words.}
 	\label{fig:lambda}
 \end{figure}
-
-
-
-\subsection{Tuning the Lambda parameter}
 
 \subsection{Porter Stemming}
 Porter Stemming is a process for removing some of the common morphological and inflexional endings from words. The ramifications of this in a classifier is that it consolidates words with similar semantics. This can often help to reduce dependencies between similar words. We ran performance tests with and without Porter Stemming. 
@@ -62,11 +61,14 @@ Porter Stemming is a process for removing some of the common morphological and i
 
 
 \section{Results}
+The baseline results of our 10-fold cross-validation using a dictionary of 10,000 words and a $\lambda$ of 1 are an AUC of 0.9257 with a 1\% lift of 34.067. The optimal value that we achieved was using a dictionary size of 15,000 words and a $\lambda$ of 1,500, which gave us an AUC of 0.9313 and a lift of 38.27. We did not observe improvements with Porter Stemming or stop word removal. We also believe that a larger dictionary size offers only modest improvements, as our AUC difference between using 10,000 and 15,000 words is only .0013 when using tuned $\lambda$ parameters.
+
 
 \section{Analysis}
 \subsection{Top Words}
+As mentioned above, the lambda parameter played a major role in the top words. Having a better tuned lambda gave more reasonable top words and improved performance. Looking at the words in table \ref{tab:words}, all of the top 10 positive and negative words seem quite reasonable and accurate. It is interesting to note that negative words have much stronger weights than positive words. The top negative word, ``waste'', has 3.5 times more weight than the the top positive word, ``excellent.'' This is likely due to the fact that the reviews in this dataset were heavily skewed towards being positive. The mean review rating is 4.23. 
 
-\begin{table}
+\begin{table}[h]
     \begin{tabular}{|l|l|l|l|}
         \hline
         Top Positive Words & Weights & Top Negative Words & Weights \\ \hline
