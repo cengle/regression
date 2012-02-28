@@ -58,11 +58,14 @@ Porter Stemming is a process for removing some of the common morphological and i
 
 \subsection{Stop Words}
 
+In order to minimize the influence of small, commonly-used words on the sentiment analysis, we tested a model that ignored a set of approximately 125 stop words. This list included words like 'the', 'and', 'a', and 'are'. However, a 10-fold cross-validation across the entire data set showed that the AUC difference between the model that omitted stop words and our base model was only 0.5\%. Likewise, the most heavily weighted terms remained almost exactly the same as for the original model.
+\\\\Considering this negligible variation and the observation that no stop words appeared in our most heavily weighted positive and negative word lists, we can conclude that the effect of these common words is not substantial. This is most likely because they are for more or less evenly distributed among positive and negative reviews.
 
 
 \section{Results}
 The baseline results of our 10-fold cross-validation using a dictionary of 10,000 words and a $\lambda$ of 1 are an AUC of 0.9257 with a 1\% lift of 34.067. The optimal value that we achieved was using a dictionary size of 15,000 words and a $\lambda$ of 1,500, which gave us an AUC of 0.9313 and a lift of 38.27. We did not observe improvements with Porter Stemming or stop word removal. We also believe that a larger dictionary size offers only modest improvements, as our AUC difference between using 10,000 and 15,000 words is only .0013 when using tuned $\lambda$ parameters.
 
+% insert plot of aucs here
 
 \section{Analysis}
 \subsection{Top Words}
@@ -87,6 +90,50 @@ As mentioned above, the lambda parameter played a major role in the top words. H
     \caption{Top words and their weights using a lambda of 1500}
     \label{tab:words}
 \end{table}
+
+
+\subsection{Porter Stemming}
+
+Adding Porter Stemming to our model did not have a significant impact on the AUC.  The 10-fold cross-validation AUC for our stemmed model was 92.5\%, which 0.5\% lower than the base model AUC. This negative impact might be due to stemming causing certain positive and negative words to be reduced to the same stem, thus lowering their influence. This lack of accuracy gain with stemming is consistent with our results in Homework 1, where stemming had a negative effect on the accuracy of our Naive Bayes sentiment classifiers.
+\\\\The positive and negative stems with the most weights are slightly different and in a different order than our results above. As was expected, words with the same stem were consolidated. For example, our top negative words for the base model included 'disappointing', 'disappointment', and 'disappointed'. In the stemmed results, these separate words have been consolidated into the single stem 'disappoint', allowing new stems like 'unfortuna', 'terribl', and 'mislead' to enter the top ten negative words. Interestingly, the weight of this consolidated stem does not place it any higher than it was in the original list, presumably because the next stem, 'poor', has also gained more weight from similar consolidations.
+
+\begin{table}
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        Top Positive Words & Weights & Top Negative Words & Weights \\ \hline
+	awesom\_book & 0.19 & wast  & -0.64 \\
+	excel & 0.19 & poor & -0.57 \\
+	highlif &   0.16 &  disappoint &  -0.56 \\ 
+	invaluab & 0.15 & worst/best  & -0.47 \\
+	amaz & 0.14 & useless/worthless & -0.41 \\ 
+	superb & 0.14 & bore &  -0.30 \\
+	outstand & 0.13 & sorri &  -0.27 \\
+	terrifc & 0.13 & terribl & -0.27 \\
+	fantasti & 0.13 & unfortuna &  -0.26 \\
+	thank\_you & 0.12 & mislead &  -0.25 \\
+        \hline
+    \end{tabular}
+    \caption{Top words with Porter Stemming and $\lambda$ = 1500}
+    \label{tab:stemwords}
+\end{table}
+
+%\subsection{Dictionary Size}
+%
+%For the results above, we pruned the dictionary to the 15,000 most frequently-encountered words to simplify the calculations necessary to perform the regression. However, we also tested 10,000-word, 20,000-word and 25,000-word dictionaries on the dataset. For this, we used a single pair of training and validation data sets comprising 90\% and 10\% of the review corpus respectively with a random ordering of reviews. 
+
+%\begin{table}
+%    \begin{tabular}{|l|l|l|l|}
+%        \hline
+%        Dictionary Size & AUC \\ \hline
+%        10,000   & ???  \\ 
+%        15,000   & ???  \\ 
+%        20,000   & ???  \\ 
+%        25,000   & ???  \\ 
+%        \hline
+%    \end{tabular}
+%    \caption{Dictionary Size vs. AUC}
+%    \label{tab:dict}
+%\end{table}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
