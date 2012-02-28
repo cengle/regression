@@ -23,9 +23,13 @@
 \maketitle
 
 \section{Introduction}
-
+Sentiment analysis aims to classify people's sentiments towards a particular subject based on their opinions. There are a number of different classification methods that can be used to perform this analysis. In this paper, we perform sentiment analysis on a labeled dataset of Amazon product reviews using linear regression. The dataset consists of one million textual reviews, of which approximately 500,000 are unique. We perform 10-fold cross-validation of our linear regression method, and experiment with various configuration parameters to provide optimal performance.
 
 \section{Linear Regression}
+% NOT DONE YET
+Linear regression is a method to model the relationship between an output variable, $y$, and explanatory variables, $X$. 
+
+In this paper, we perform ordinary least squares regression. By minimizing the sum of squared residuals, we can solve for the unkown parameter vector $\beta$ using a closed form solution. $$\beta=(X'X)^{-1}X'y$$ In order to ensure that the matrix $X'X$ is invertible, we perform ridge regression. In ridge regression, we add the identity matrix, $I$, scaled by a factor, $\lambda$, to produce the following equation. $$\beta=(X'X+\lambda I)^{-1}X'y$$ We calculate this $\beta$ for a training set of review text along with their corresponding ratings which range from 1 to 5.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,6 +61,26 @@ Porter Stemming is a process for removing some of the common morphological and i
 
 \section{Analysis}
 \subsection{Top Words}
+
+\begin{table}
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        Top Positive Words & Weights & Top Negative Words & Weights \\ \hline
+        excellent   & 0.20 & waste          & -0.71 \\ 
+        awesome     & 0.18 & disappointing  & -0.57 \\ 
+        invaluable  & 0.15 & poorly         & -0.56 \\ 
+        highly      & 0.15 & disappointment & -0.52 \\ 
+        amazing     & 0.15 & worst          & -0.47 \\ 
+        outstanding & 0.15 & boring         & -0.46 \\ 
+        wonderful   & 0.14 & disappointed   & -0.46 \\ 
+        loved       & 0.14 & useless        & -0.42 \\ 
+        pleased     & 0.14 & hoping         & -0.32 \\ 
+        fantastic   & 0.14 & lacks          & -0.31 \\
+        \hline
+    \end{tabular}
+    \caption{Top words and their weights using a lambda of 1500}
+    \label{tab:words}
+\end{table}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
