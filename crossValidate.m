@@ -1,31 +1,34 @@
-modelFileName = 'model'; % should have vars Xtot and ytot
+%modelFileName = 'model'; % should have vars Xtot and ytot
 %modelFileName = 'modelNoStops';
 %modelFileName = 'modelNoStopsStemmed';
+modelFileName = 'modelStemmed';
+
 load(modelFileName);
-load('stopwords');
-%load('smapStemmedUnique');
+%load('stopwords');
+load('smapStemmedUnique');
 load('smap', 'smap');
+display('loaded data')
+
 numWords = 10000;
 numReviews = length(Xtot(1,:));
 
 % Get total frequency for each unique stem
-%uniqWordTotals = sum(Xtot(2:end,:), 2);
-%uniqWordTotals = uniqWordTotals(1:length(uniqToSmap), 1);
-%[ignore, uniquesByFreq] = sort(uniqWordTotals, 'descend');
+uniqWordTotals = sum(Xtot(2:end,:), 2);
+uniqWordTotals = uniqWordTotals(1:length(uniqToSmap), 1);
+[ignore, uniquesByFreq] = sort(uniqWordTotals, 'descend');
 
-%stopwordsUniq = unique(smapToUniq(stopIndexes), 'first');
-%stopwordsLen = length(stopwordsUniq);
-
-% Omit stemmed stopwords
-%[ignore, ix] = setdiff(uniquesByFreq, stopwordsUniq);
-%uniquesNoStops = uniquesByFreq(sort(ix)); % keep freq order
+wordTotals = sum(Xtot(2:end,:), 2);
+[ignore, wordsByFreq] = sort(wordTotals, 'descend');
+wordsByFreq = [1; wordsByFreq+1];
 
 % top stems by frequency
 %topWords = uniquesNoStops(1:numWords) + 1;
-topWords = 1:numWords;
+topWords = wordsByFreq(1:numWords);
+%topWords = 1:numWords;
 
 iterations = 1;
-lambda = 1; % regularization constant
+%lambda = 1; % regularization constant
+lambda = 1500; % regularization constant
 rng(13);
 ri = randperm(numReviews);
 Xtot = Xtot(:,ri); % shuffle reviews
@@ -34,7 +37,7 @@ aucs = [];
 lifts = [];
 times = [];
 flops = [];
-
+Bs = [];
 
 for i = 1:iterations
   % separate data into training and validation
@@ -64,22 +67,31 @@ for i = 1:iterations
   aucs = [aucs, AUC];
   [l, index] = min(abs(x-.01));
   lifts = [lifts, y(index)/.01];
+  Bs = [Bs B];
   display(i)
 end
+meanB = mean(Bs,2);
+
+
 % perf = flops ./ times;
 
-%stemmed
-% worst words:
-%[a, ix] = sort(B);
-%smap(uniqToSmap(topWords(ix(1:20))-1)) %  by most frequent unstemmed version of stem
-% smapUnique(topWords(ix(1:15))-1)' % stem
-% best words:
-% smap(uniqToSmap(topWords(ix(numWords-15:end))-1))
-% smapUnique(topWords(ix(numWords-15:end))-1)'
+% stemmed
+%[a, ix] = sort(B(2:end));
+%[a, ix] = sort(meanB(2:end));
+%smap(uniqToSmap(topWords(ix(1:20)+1)))
+%smap(uniqToSmap(topWords(ix(numWords-20:end)+1)))
+
+%smapUnique(topWords(ix(1:20)+1))'
+%smapUnique(topWords(ix(numWords-20:end)+1))'
+%a(1:20) % lowest weights
+%a(numWords-20:end) % highest weights
 
 %unstemmed
 % worst words:
-% [a, ix] = sort(B(2:end))
+%[a, ix] = sort(B(2:end));
 %smap(ix(1:20))
-% best words:
-% smap(ix(numWords-15:end))
+%smap(ix(numWords-20:end))
+
+%[a,ix] = sort(B(2:end), 'descend');
+%smap(wordsByFreq(ix(1:20)))
+
