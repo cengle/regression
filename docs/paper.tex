@@ -63,9 +63,14 @@ In order to minimize the influence of small, commonly-used words on the sentimen
 
 
 \section{Results}
-The baseline results of our 10-fold cross-validation using a dictionary of 10,000 words and a $\lambda$ of 1 are an AUC of 0.9257 with a 1\% lift of 34.067. The optimal value that we achieved was using a dictionary size of 15,000 words and a $\lambda$ of 1,500, which gave us an AUC of 0.9313 and a lift of 38.27. We did not observe improvements with Porter Stemming or stop word removal. We also believe that a larger dictionary size offers only modest improvements, as our AUC difference between using 10,000 and 15,000 words is only .0013 when using tuned $\lambda$ parameters.
+The baseline results of our 10-fold cross-validation using a dictionary of 10,000 words and a $\lambda$ of 1 are an AUC of 0.9257 with a 1\% lift of 34.067. The optimal value that we achieved was using a dictionary size of 15,000 words and a $\lambda$ of 1,500, which gave us an AUC of 0.9313 and a lift of 38.27. We did not observe improvements with Porter Stemming or stop word removal, as shown in in figure \ref{fig:auc}. We also believe that a larger dictionary size offers only modest improvements, as our AUC difference between using 10,000 and 15,000 words is only .0013 when using tuned $\lambda$ parameters.
 
-% insert plot of aucs here
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\linewidth]{files/aucs.pdf}
+	\caption{AUC for baseline, stemmed and stop word models.}
+	\label{fig:auc}
+\end{figure}
 
 \section{Analysis}
 \subsection{Top Words}
@@ -94,7 +99,7 @@ As mentioned above, the lambda parameter played a major role in the top words. H
 
 \subsection{Porter Stemming}
 
-Adding Porter Stemming to our model did not have a significant impact on the AUC.  The 10-fold cross-validation AUC for our stemmed model was 92.5\%, which 0.5\% lower than the base model AUC. This negative impact might be due to stemming causing certain positive and negative words to be reduced to the same stem, thus lowering their influence. This lack of accuracy gain with stemming is consistent with our results in Homework 1, where stemming had a negative effect on the accuracy of our Naive Bayes sentiment classifiers.
+Adding Porter Stemming to our model did not have a significant impact on the AUC.  The 10-fold cross-validation AUC for our stemmed model was 92.5\%, which 0.5\% lower than the base line AUC. This negative impact might be due to stemming causing certain positive and negative words to be reduced to the same stem, thus lowering their influence. This lack of accuracy gain with stemming is consistent with our results in Homework 1, where stemming had a negative effect on the accuracy of our Naive Bayes sentiment classifiers.
 \\\\The positive and negative stems with the most weights are slightly different and in a different order than our results above. As was expected, words with the same stem were consolidated. For example, our top negative words for the base model included 'disappointing', 'disappointment', and 'disappointed'. In the stemmed results, these separate words have been consolidated into the single stem 'disappoint', allowing new stems like 'unfortuna', 'terribl', and 'mislead' to enter the top ten negative words. Interestingly, the weight of this consolidated stem does not place it any higher than it was in the original list, presumably because the next stem, 'poor', has also gained more weight from similar consolidations.
 
 \begin{table}
